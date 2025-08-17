@@ -60,6 +60,42 @@ function App() {
     // ping (latency) by player id (ms)
     const [pingsByPlayer, setPingsByPlayer] = useState<Record<string, number>>({})
 
+    // Input binding (keyboard key by code or mouse button). Persisted in localStorage.
+    type InputBinding =
+        | { kind: 'key'; code: string }
+        | { kind: 'mouse'; button: 0 | 1 | 2 }
+    const DEFAULT_BIND: InputBinding = { kind: 'key', code: 'Space' }
+
+    const readBinding = (): InputBinding => {
+        try {
+            const raw = localStorage.getItem('samurai.binding')
+            if (!raw) return DEFAULT_BIND
+            const obj = JSON.parse(raw)
+            if (obj && (obj.kind === 'key' && typeof obj.code === 'string')) return { kind: 'key', code: obj.code }
+            if (obj && (obj.kind === 'mouse' && (obj.button === 0 || obj.button === 1 || obj.button === 2))) return {
+                kind: 'mouse',
+                button: obj.button,
+            }
+        } catch {/* ignore */}
+        return DEFAULT_BIND
+    }
+    const saveBinding = (b: InputBinding) => {
+        try {
+            localStorage.setItem('samurai.binding', JSON.stringify(b))
+        } catch {/* ignore */}
+    }
+    const formatBinding = (b: InputBinding): string => {
+        if (b.kind === 'mouse') return b.button === 0 ? 'Mouse Left' : b.button === 1 ? 'Mouse Middle' : 'Mouse Right'
+        const c = b.code
+        if (c.startsWith('Key') && c.length === 4) return c.slice(3)
+        if (c.startsWith('Digit') && c.length === 6) return c.slice(5)
+        return c.replace('Arrow', 'Arrow ')
+    }
+    const [binding, setBinding] = useState<InputBinding>(() => readBinding())
+    const [listeningBind, setListeningBind] = useState(false)
+
+    useEffect(() => { saveBinding(binding) }, [binding])
+
     useEffect(() => {
         const fight = new Audio(fightSnd)
         fight.preload = 'auto'
@@ -389,20 +425,65 @@ function App() {
         }
     }
 
-    // handle key press only (Spacebar)
+    // gameplay input: obey configurable binding (keyboard or mouse)
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.code === 'Space') {
+            if (listeningBind) return
+            if (binding.kind === 'key' && e.code === binding.code) {
+                e.preventDefault()
+                doPress()
+            }
+        }
+        const onMouse = (e: MouseEvent) => {
+            if (listeningBind) return
+            if (binding.kind === 'mouse' && e.button === binding.button) {
                 e.preventDefault()
                 doPress()
             }
         }
         window.addEventListener('keydown', onKey)
+        window.addEventListener('mousedown', onMouse)
         return () => {
             window.removeEventListener('keydown', onKey)
+            window.removeEventListener('mousedown', onMouse)
         }
         // eslint-disable-next- react-hooks/exhaustive-deps
-    }, [status, pressedThisRound])
+    }, [binding, status, pressedThisRound, listeningBind])
+
+    // Rebinding capture mode: next key press or mouse click sets new binding
+    useEffect(() => {
+        if (!listeningBind) return
+        const onKey = (e: KeyboardEvent) => {
+            e.preventDefault()
+            e.stopPropagation()
+            if (e.code === 'Escape') { setListeningBind(false); return }
+            setBinding({ kind: 'key', code: e.code })
+            setListeningBind(false)
+        }
+        const onMouse = (e: MouseEvent) => {
+            e.preventDefault()
+            e.stopPropagation()
+            const btn = e.button as 0 | 1 | 2
+            setBinding({ kind: 'mouse', button: btn })
+            setListeningBind(false)
+        }
+        window.addEventListener('keydown', onKey, { capture: true })
+        window.addEventListener('mousedown', onMouse, { capture: true })
+        return () => {
+            window.removeEventListener('keydown', onKey, true)
+            window.removeEventListener('mousedown', onMouse, true)
+        }
+        // eslint-disable-next- react-hooks/exhaustive-deps
+    }, [listeningBind])
+
+    // Prevent context menu when right mouse button is bound
+    useEffect(() => {
+        if (!(binding.kind === 'mouse' && binding.button === 2)) return
+        const onCtx = (e: MouseEvent) => { e.preventDefault() }
+        window.addEventListener('contextmenu', onCtx)
+        return () => { window.removeEventListener('contextmenu', onCtx) }
+        // eslint-disable-next- react-hooks/exhaustive-deps
+    }, [binding])
 
     const canPress = status === 'waiting' || status === 'signaled'
 
@@ -632,6 +713,17 @@ function App() {
                             aria-label="Volume"
                         />
                     </div>
+                    <div className="topbar-controls snes-font" style={{ marginLeft: 12 }}>
+                        <div className="text-12 mb-2">Control</div>
+                        {!listeningBind ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span className="hint-small">Bind: {formatBinding(binding)}</span>
+                                <button className="snes-button small" onClick={() => setListeningBind(true)}>Rebind</button>
+                            </div>
+                        ) : (
+                            <div className="hint-small">Press a key or click a mouse button... (Esc to cancel)</div>
+                        )}
+                    </div>
                 </div>
             )}
 
@@ -783,7 +875,7 @@ function App() {
 
                     {status === 'lobby' && (
                         <div className="hud-bottom snes-font">
-                            <span>Controls: Press Spacebar only.</span>
+                            <span>Controls: Press {formatBinding(binding)} only.</span>
                             <span>Early press: opponent scores.</span>
                         </div>
                     )}
