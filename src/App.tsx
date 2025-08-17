@@ -970,7 +970,7 @@ function App() {
             )}
             <div className="site-footer snes-font">
                 Made by <a href="https://x.com/leith42" target="_blank" rel="noopener noreferrer">leith</a> with <img
-                src={heartSvg} alt="heart"/>
+                src={heartSvg} alt="heart"/> • Feel free to contribute <a href="https://github.com/Leith42/samurai-kirby" target="_blank" rel="noopener noreferrer">here</a>.
             </div>
         </div>
     )
