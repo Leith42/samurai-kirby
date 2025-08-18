@@ -40,7 +40,7 @@ npm run build
 This produces a production build in `dist/`.
 
 ## Status
-You can create a lobby, send someone a link to join it, and play the game.<br>
+You can create a room, send someone a link to join it, and play the game.<br>
 Here's what could be added if the mood hits me:
 - Matchmaking (e.g. find a random room)
 - Spectate mode

@@ -177,7 +177,6 @@ body {
     image-rendering: crisp-edges;
     border: 4px solid rgba(255, 255, 255, 0.8);
     border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     background: rgba(0, 0, 0, 0.2);
 }
 
@@ -605,8 +604,8 @@ body {
     transition: opacity 120ms ease;
 }
 
-.snes-menu .menu-item:hover:not(:disabled)::before,
-.snes-menu .menu-item:focus-visible:not(:disabled)::before {
+.snes-menu .menu-item:hover::before,
+.snes-menu .menu-item:focus-visible::before {
     opacity: 1;
 }
 
@@ -816,7 +815,7 @@ body {
 }
 
 .modal-subtitle {
-    font-size: 22px;
+    font-size: 18px;
     color: #ffef62;
     text-shadow: 2px 2px 0 #000;
     margin-bottom: 12px;
@@ -835,3 +834,8 @@ body {
     border-radius: 8px;
     padding: 8px 10px;
 }
+
+
+/* Utility margin helpers added for class-only styling */
+.ml-12 { margin-left: 12px; }
+.mx-auto { margin-left: auto; margin-right: auto; }
