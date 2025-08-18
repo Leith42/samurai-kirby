@@ -32,11 +32,10 @@ body {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding-top: 32px;
     min-width: 320px;
-    height: 100vh; /* fit viewport height exactly */
-    overflow: hidden; /* prevent scrolling */
-    box-sizing: border-box; /* include padding in the 100vh */
+    height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -80,7 +79,6 @@ button:focus-visible {
     }
 }
 
-/* SNES theme additions */
 @font-face {
     font-family: 'KirbysAdventure';
     src: url('assets/fonts/Kirbys-Adventure.ttf') format('truetype');
@@ -90,7 +88,6 @@ button:focus-visible {
 }
 
 body {
-    /* Apply provided background */
     background-image: url('assets/img/wallpaper.jpg');
     background-size: cover;
     background-position: center;
@@ -119,7 +116,6 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* Reusable SNES-styled panel */
 .snes-panel {
     background: rgba(0, 0, 0, 0.5);
     border: 3px solid #ffffffaa;
@@ -128,7 +124,6 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* Fixed position for the debug panel */
 .debug-panel {
     position: fixed;
     top: 12px;
@@ -168,19 +163,15 @@ body {
     cursor: not-allowed;
 }
 
-
-/* Game frame styling */
 .game-frame {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden; /* keep overlays within the frame */
+    display: block;
+    width: fit-content;
+    overflow: hidden;
 }
 
-/* Only the main frame image should get the border/size */
 .frame-image {
-    width: 960px;
+    width: 760px;
     height: auto;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
@@ -190,7 +181,12 @@ body {
     background: rgba(0, 0, 0, 0.2);
 }
 
-/* Reusable SNES-like button */
+@media (min-height: 1081px) {
+    .frame-image {
+        width: 960px;
+    }
+}
+
 .snes-button {
     padding: 10px 16px;
     font-size: 18px;
@@ -253,7 +249,7 @@ body {
 .staring-banner {
     position: absolute;
     left: 50%;
-    top: 0; /* start at the very top inside the frame */
+    top: 0;
     transform: translateX(-50%);
     image-rendering: pixelated;
     image-rendering: crisp-edges;
@@ -261,10 +257,9 @@ body {
     height: 120px;
     border-radius: 6px;
     opacity: 0.9;
-    animation: dropStare 4s linear forwards; /* travel from top to bottom, then disappear */
+    animation: dropStare 4s linear forwards;
 }
 
-/* HUD overlays on the game frame */
 .hud-score {
     position: absolute;
     top: 10px;
@@ -287,13 +282,13 @@ body {
 
 .hud-signboard {
     position: absolute;
-    width: 67px;
-    height: 47px;
-    bottom: 224px;
-    right: 90px;
+    width: 53px;
+    height: 37px;
+    bottom: 177px;
+    right: 71px;
     box-sizing: border-box;
     padding: 0;
-    font-size: 25px;
+    font-size: 20px;
     color: #ffef62;
     text-shadow: 2px 2px 0 #000;
     display: flex;
@@ -304,12 +299,21 @@ body {
     border-radius: 0;
 }
 
-/* Player HUD blocks at top corners */
+@media (min-height: 1081px) {
+    .hud-signboard {
+        width: 67px;
+        height: 47px;
+        bottom: 224px;
+        right: 90px;
+        font-size: 25px;
+    }
+}
+
 .hud-player {
     position: absolute;
     top: 10px;
-    width: 220px; /* slightly smaller blocks */
-    min-height: 96px; /* tighter height */
+    width: 220px;
+    min-height: 96px;
     background: rgba(0, 0, 0, 0.35);
     border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 8px;
@@ -318,7 +322,6 @@ body {
     text-shadow: 2px 2px 0 #000;
 }
 
-/* Compact HUD during gameplay: smaller, hearts anchored at bottom */
 .hud-player.compact {
     min-height: 64px;
     padding: 4px 8px;
@@ -351,7 +354,6 @@ body {
     margin-top: 2px;
 }
 
-/* Top center (Best-of) */
 .hud-top-center {
     position: absolute;
     top: 10px;
@@ -366,7 +368,6 @@ body {
 }
 
 
-/* Bottom controls hint */
 .hud-bottom {
     position: absolute;
     bottom: 12px;
@@ -384,11 +385,10 @@ body {
 }
 
 
-/* Audio controls overlay (top-right of game frame) */
 .hud-audio {
     position: absolute;
     right: 14px;
-    top: 114px; /* placed below the top-right player HUD */
+    top: 114px;
     background: rgba(0, 0, 0, 0.35);
     border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 8px;
@@ -435,10 +435,9 @@ body {
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* Win/Lose animations (green/red) */
 @keyframes winBlink {
     0%, 100% {
-        border-color: #00e676; /* brighter green */
+        border-color: #00e676;
         box-shadow: 0 0 18px rgba(0, 230, 118, 0.95);
     }
     50% {
@@ -466,7 +465,6 @@ body {
     border-color: #e74c3c;
 }
 
-/* Shake animation for game frame on signal */
 @keyframes frameShake {
     0% {
         transform: translate(0, 0);
@@ -492,7 +490,6 @@ body {
     animation: frameShake 300ms ease-in-out;
 }
 
-/* Heart track styling */
 .heart-track {
     display: flex;
     gap: 8px;
@@ -523,7 +520,6 @@ body {
 }
 
 
-/* Heart icon sizing */
 .heart-slot img {
     width: 30px;
     height: 30px;
@@ -537,7 +533,6 @@ body {
     border-radius: 0;
 }
 
-/* Blinking helper for waiting state */
 @keyframes blink {
     0% {
         opacity: 1;
@@ -555,7 +550,6 @@ body {
 }
 
 
-/* slider cross-browser track and interaction states */
 .hud-audio input[type="range"]::-webkit-slider-runnable-track, .topbar-audio input[type="range"]::-webkit-slider-runnable-track {
     height: 8px;
     background: #ffd7e8;
@@ -596,7 +590,6 @@ body {
 }
 
 
-/* Main menu hover arrow indicator */
 .snes-menu .menu-item::before {
     content: '';
     position: absolute;
@@ -617,7 +610,6 @@ body {
     opacity: 1;
 }
 
-/* Footer */
 .site-footer {
     position: fixed;
     left: 10px;
@@ -650,7 +642,6 @@ body {
 }
 
 
-/* Utility and component classes added to replace inline styles */
 .app-container {
     max-width: 960px;
     margin: 0 auto;
@@ -658,7 +649,6 @@ body {
     text-align: center;
 }
 
-/* Spacing utilities */
 .mb-12 {
     margin-bottom: 12px;
 }

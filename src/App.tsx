@@ -57,7 +57,6 @@ function App() {
         scores: Scores;
     } | null>(null)
 
-    // ping (latency) by player id (ms)
     const [pingsByPlayer, setPingsByPlayer] = useState<Record<string, number>>({})
 
     // Input binding (keyboard key by code or mouse button). Persisted in localStorage.
@@ -532,7 +531,6 @@ function App() {
     }, [playerId, status, winnerId, players])
 
     const isHost = useMemo(() => hostId === playerId, [hostId, playerId])
-    // Host does not need to be ready; only the non-host must be ready for Start
     const opponentReady = useMemo(() => {
         if (players.length < 2) return false
         const host = players.find(p => p.id === hostId) || null
@@ -548,59 +546,6 @@ function App() {
     const startMatch = () => send({type: 'start_match'})
     const forceStop = () => send({type: 'force_stop'})
     const changeBestOf = (bo: number) => send({type: 'set_best_of', bestOf: bo})
-    const leaveLobby = () => {
-        try {
-            wsRef.current?.close()
-        } catch { /* ignore */
-        }
-        wsRef.current = null
-        // Remove ?room from URL
-        try {
-            const url = new URL(window.location.href)
-            url.searchParams.delete('room')
-            window.history.replaceState({}, '', url.toString())
-        } catch { /* ignore */
-        }
-        // Reset client state
-        setPlayerId(null)
-        setRoomId('')
-        setStatus('idle')
-        setPlayers([])
-        setScores({})
-        setRound(0)
-        setLastFrames({})
-        setEarlyBy(null)
-        setWinnerId(null)
-        setPressedThisRound(false)
-        setBestOf(5)
-        setLinkCopied(false)
-        setHostId(null)
-        setUrlRoom(null)
-        setError('')
-        setPlannedSignalAt(null)
-        setBestFramesByPlayer({})
-        setEarlyCountsByPlayer({})
-        setWinOverlay(null)
-        setPingsByPlayer({})
-        autoJoinAttemptedRef.current = false
-        // Reconnect fresh WebSocket so user can create a new room later
-        if (!WS_URL) return
-        const ws = new WebSocket(WS_URL)
-        wsRef.current = ws
-        ws.onopen = () => setConnected(true)
-        ws.onclose = () => setConnected(false)
-        ws.onerror = (err) => {
-            console.error('WebSocket error', err)
-        }
-        ws.onmessage = (ev) => {
-            try {
-                const msg = JSON.parse(ev.data as string) as ServerMsg
-                handleMessage(msg)
-            } catch (e) {
-                console.error('Failed to parse WS message', e)
-            }
-        }
-    }
 
     // Points display: hearts (lives). Each player starts with targetWins hearts and loses one when opponent scores.
     const targetWins = useMemo(() => Math.floor((bestOf || 5) / 2) + 1, [bestOf])
@@ -672,9 +617,9 @@ function App() {
                 <div className="toolbar">
                     {status === 'lobby' && (
                         <>
-                            <button className="snes-button snes-font" onClick={leaveLobby}
-                                    title="Leave this lobby">Leave Lobby
-                            </button>
+                            {/*<button className="snes-button snes-font" onClick={leaveLobby}*/}
+                            {/*        title="Leave this lobby">Leave Lobby*/}
+                            {/*</button>*/}
                             <button className="snes-button snes-font" onClick={copyInvite}>Copy Invite Link</button>
                             {linkCopied &&
                                 <span className="snes-font hint-small">Copied!</span>}
@@ -701,7 +646,6 @@ function App() {
                                 const vol = v / 100
                                 setVolume(vol)
                                 if (v > 0 && muted) setMuted(false)
-                                // Apply immediately for real-time feedback
                                 applyAllAudios([
                                     fightAudioRef.current,
                                     signalAudioRef.current,
@@ -721,7 +665,7 @@ function App() {
                                 <button className="snes-button small" onClick={() => setListeningBind(true)}>Rebind</button>
                             </div>
                         ) : (
-                            <div className="hint-small">Press a key or click a mouse button... (Esc to cancel)</div>
+                            <div className="hint-small">Press a key... (Esc to cancel)</div>
                         )}
                     </div>
                 </div>
@@ -729,7 +673,7 @@ function App() {
 
             {playerId && (
                 <div className={"game-frame" + (status === 'signaled' ? ' shake-frame' : '')}
-                     style={{margin: '8px 0', position: 'relative'}}>
+                     style={{margin: '8px auto'}}>
                     <img className="frame-image" src={currentFrame} alt="Game"/>
 
                     {status === 'staring' && (
@@ -969,8 +913,8 @@ function App() {
                 </div>
             )}
             <div className="site-footer snes-font">
-                Made by <a href="https://x.com/leith42" target="_blank" rel="noopener noreferrer">leith</a> with <img
-                src={heartSvg} alt="heart"/> • Feel free to contribute <a href="https://github.com/Leith42/samurai-kirby" target="_blank" rel="noopener noreferrer">here</a>.
+               • Feel free to contribute <a href="https://github.com/Leith42/samurai-kirby" target="_blank" rel="noopener noreferrer">here</a> <img
+                src={heartSvg} alt="heart"/>
             </div>
         </div>
     )

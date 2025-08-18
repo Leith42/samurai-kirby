@@ -470,7 +470,6 @@ wss.on('connection', (ws, req) => {
                 sendError(ws, 'Match already started');
                 return;
             }
-            // Host does not need to be ready; require only the non-host player (opponent) to be ready
             const hasBoth = room.players.length === 2;
             const opponent = room.players.find(p => p.id !== room.hostId);
             const readyToStart = !!(hasBoth && opponent && opponent.ready);
